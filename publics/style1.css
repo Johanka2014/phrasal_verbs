@@ -1,0 +1,31 @@
+<!-- Link to Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!-- Link to Tailwind CSS Framework -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Custom Styles -->
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .quiz-input {
+        border-bottom: 2px solid #4ade80; /* green-400 */
+        background: transparent;
+        color: #15803d; /* green-700 */
+        font-weight: bold;
+        text-align: center;
+        width: 150px;
+        outline: none;
+        transition: all 0.3s;
+    }
+    .quiz-input:focus {
+        border-color: #15803d; /* green-700 */
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    .feedback {
+        transition: opacity 0.5s;
+    }
+</style>
