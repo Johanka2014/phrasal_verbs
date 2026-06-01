@@ -61,21 +61,22 @@
                     <div class="text-center mb-4 text-slate-500 font-medium" id="flashcard-counter">Card 1 / 16</div>
                     
                     <div class="perspective-1000 w-full h-80 cursor-pointer" onclick="flipCard()">
-                        <!-- Front of Card -->
-                        <div class="absolute w-full h-full bg-white rounded-2xl backface-hidden flex flex-col items-center justify-center border-2 border-blue-100 p-6">
-                            <h2 id="fc-front-word" class="text-4xl font-bold text-blue-600 mb-2"></h2>
-                            <p class="text-slate-400 text-sm mt-4">Tap to reveal meaning</p>
-                        </div>
-                        <!-- Back of Card -->
-                        <div class="absolute w-full h-full bg-blue-600 text-white rounded-2xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-left">
-                            <h3 class="text-xl font-bold mb-3 border-b border-blue-400 pb-2 w-full text-center">Meaning</h3>
-                            <p id="fc-back-meaning" class="text-md mb-6 text-center leading-relaxed"></p>
-                            <div class="bg-blue-700/50 p-3 rounded-lg w-full">
-                                <p id="fc-back-example" class="text-sm italic text-blue-50"></p>
+                        <div id="flashcard-inner" class="relative w-full h-full text-center transform-style-3d flip-transition shadow-lg rounded-2xl">
+                            <!-- Front of Card -->
+                            <div class="absolute w-full h-full bg-white rounded-2xl backface-hidden flex flex-col items-center justify-center border-2 border-blue-100 p-6">
+                                <h2 id="fc-front-word" class="text-4xl font-bold text-blue-600 mb-2"></h2>
+                                <p class="text-slate-400 text-sm mt-4">Tap to reveal meaning</p>
+                            </div>
+                            <!-- Back of Card -->
+                            <div class="absolute w-full h-full bg-blue-600 text-white rounded-2xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-left">
+                                <h3 class="text-xl font-bold mb-3 border-b border-blue-400 pb-2 w-full text-center">Meaning</h3>
+                                <p id="fc-back-meaning" class="text-md mb-6 text-center leading-relaxed"></p>
+                                <div class="bg-blue-700/50 p-3 rounded-lg w-full">
+                                    <p id="fc-back-example" class="text-sm italic text-blue-50"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <div class="flex justify-between items-center mt-8 gap-4">
                     <button onclick="prevCard()" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-300 active:bg-slate-400 transition">Previous</button>
