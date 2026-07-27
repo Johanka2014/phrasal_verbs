@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verbs with INTO Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Flashcard 3D Flip Styles */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flipped { transform: rotateY(180deg); }
+        .flip-transition { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        
+        /* Hide scrollbar for cleaner mobile look but keep functionality */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        body { -webkit-tap-highlight-color: transparent; background-color: #f3f4f6; }
+        
+        /* App container constraints */
+        #app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased font-sans">
+
+    <div id="app-container" class="flex flex-col h-screen">
+        
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-50 rounded-b-xl">
+            <h1 class="text-xl font-bold text-center tracking-wide">Phrasal Verbs</h1>
+            <p class="text-blue-100 text-xs text-center mt-1">Units 25 & 27: Verbs with INTO</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 relative">
+            
+            <!-- 1. LEARN TAB -->
+            <section id="tab-learn" class="tab-section pb-20">
+                <div class="sticky top-0 bg-[#f8fafc] pt-2 pb-4 z-10">
+                    <input type="text" id="searchInput" onkeyup="filterDictionary()" placeholder="Search verbs..." 
+                           class="w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm">
+                </div>
+                <div id="dictionary-list" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- 2. FLASHCARDS TAB -->
+            <section id="tab-flashcards" class="tab-section hidden h-full pb-20">
+                <div class="flex flex-col justify-center h-full">
+                    <div class="text-center mb-4 text-slate-500 font-medium" id="flashcard-counter">Card 1 / 16</div>
+                    
+                    <div class="perspective-1000 w-full h-80 cursor-pointer" onclick="flipCard()">
+                        <div id="flashcard-inner" class="relative w-full h-full text-center transform-style-3d flip-transition shadow-lg rounded-2xl">
+                            <!-- Front of Card -->
+                            <div class="absolute w-full h-full bg-white rounded-2xl backface-hidden flex flex-col items-center justify-center border-2 border-blue-100 p-6">
+                                <h2 id="fc-front-word" class="text-4xl font-bold text-blue-600 mb-2"></h2>
+                                <p class="text-slate-400 text-sm mt-4">Tap to reveal meaning</p>
+                            </div>
+                            <!-- Back of Card -->
+                            <div class="absolute w-full h-full bg-blue-600 text-white rounded-2xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-left">
+                                <h3 class="text-xl font-bold mb-3 border-b border-blue-400 pb-2 w-full text-center">Meaning</h3>
+                                <p id="fc-back-meaning" class="text-md mb-6 text-center leading-relaxed"></p>
+                                <div class="bg-blue-700/50 p-3 rounded-lg w-full">
+                                    <p id="fc-back-example" class="text-sm italic text-blue-50"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <div class="flex justify-between items-center mt-8 gap-4">
+                    <button onclick="prevCard()" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-300 active:bg-slate-400 transition">Previous</button>
+                    <button onclick="nextCard()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 active:bg-blue-800 transition shadow-md">Next</button>
+                </div>
+            </section>
+
+            <!-- 3. QUIZ TAB -->
+            <section id="tab-quiz" class="tab-section hidden pb-20">
+                <div id="quiz-intro" class="text-center mt-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Sentence Practice</h2>
+                        <p class="text-slate-600 mb-6">Test your knowledge using the real examples from your course materials. Fill in the missing phrasal verb.</p>
+                        <button onclick="startQuiz()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-md active:transform active:scale-95 transition">Start Quiz</button>
+                    </div>
+                </div>
+
+                <div id="quiz-game" class="hidden mt-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <span id="quiz-progress" class="text-sm font-bold text-slate-500">Question 1 / 16</span>
+                        <span id="quiz-score-display" class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-bold">Score: 0</span>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                        <p id="quiz-sentence" class="text-lg text-slate-800 leading-relaxed font-medium"></p>
+                    </div>
+
+                    <div id="quiz-options" class="space-y-3">
+                        <!-- Buttons populated by JS -->
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="hidden text-center mt-4">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <div id="result-icon" class="text-6xl mb-4">🏆</div>
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+                        <p class="text-lg text-slate-600 mb-6">You scored <span id="final-score" class="font-bold text-blue-600"></span> out of 16.</p>
+                        <button onclick="startQuiz()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-md active:transform active:scale-95 transition">Play Again</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full max-w-[480px] z-50 rounded-t-xl pb-safe">
+            <div class="flex justify-around items-center h-16">
+                <button onclick="switchTab('learn')" id="nav-learn" class="flex flex-col items-center justify-center w-full h-full text-blue-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <span class="text-[10px] font-semibold mt-1">Learn</span>
+                </button>
+                <button onclick="switchTab('flashcards')" id="nav-flashcards" class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-blue-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>
+                    <span class="text-[10px] font-semibold mt-1">Cards</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-blue-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 .54.54l5.603 2.952a.5.5 0 0 1 0 .876l-5.603 2.952a1 1 0 0 0-.54.54l-2.952 5.603a.5.5 0 0 1-.876 0L8.61 15.13a1 1 0 0 0-.54-.54L2.467 11.64a.5.5 0 0 1 0-.876l5.603-2.952a1 1 0 0 0 .54-.54l2.952-5.603Z"></path></svg>
+                    <span class="text-[10px] font-semibold mt-1">Practice</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Data derived directly from the uploaded PDFs
+        const verbsData = [
+            { base: "come into", form: "came into", meaning: "To inherit or suddenly receive money or property.", sentence: "When her uncle died, Stephanie ___ a lot of money." },
+            { base: "rush into", form: "rush into", meaning: "To make a hasty decision without careful thought.", sentence: "Take your time. You should never ___ important decisions." },
+            { base: "talk into", form: "talk me into", meaning: "To persuade someone to do something.", sentence: "My boss has been trying to ___ having a holiday, but I've got too much work." },
+            { base: "tune into", form: "tune into", meaning: "To select a particular radio or television station.", sentence: "When I want to listen to the news, I usually ___ my local radio station." },
+            { base: "bump into", form: "bumped into", meaning: "To meet someone by chance.", sentence: "She was walking through the park when she ___ an old friend." },
+            { base: "go into", form: "go into", meaning: "To enter a profession or organization.", sentence: "He wants to ___ the navy when he's old enough." },
+            { base: "burst into", form: "burst into", meaning: "To suddenly begin to make a sound, especially to start crying.", sentence: "When she heard the terrible news, she ___ tears." },
+            { base: "grow into", form: "grow into", meaning: "To become large enough to wear a piece of clothing.", sentence: "The jacket's a bit large but you'll soon ___ it." },
+            { base: "check into", form: "check into", meaning: "To register upon arrival at a hotel.", sentence: "You'll need your confirmation of booking when you ___ the hotel." },
+            { base: "pull into", form: "pulled into", meaning: "To drive a vehicle into a parking area or station.", sentence: "The coach driver ___ the car park and the passengers all got out." },
+            { base: "put into", form: "put it into", meaning: "To express thoughts or feelings using words.", sentence: "It's difficult to explain. I can't ___ words." },
+            { base: "get into", form: "get into", meaning: "To become involved in a difficult situation.", sentence: "I never buy anything I can't afford. I don't want to ___ debt." },
+            { base: "look into", form: "looking into", meaning: "To investigate or examine the facts of a situation.", sentence: "Why are the police asking questions? They're ___ a robbery at the Town Hall." },
+            { base: "let into", form: "let you into", meaning: "To allow someone to know a secret.", sentence: "If you promise not to tell anyone I'll ___ a secret." },
+            { base: "crowd into", form: "crowded into", meaning: "To move in large numbers into a space.", sentence: "So many people ___ the stadium that there was soon no room for any more." },
+            { base: "make into", form: "make it into", meaning: "To change or transform something into something else.", sentence: "I've heard that they're going to ___ a children's playground." }
+        ];
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabId) {
+            // Update content visibility
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Update bottom nav styling
+            const navIds = ['learn', 'flashcards', 'quiz'];
+            navIds.forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                if (id === tabId) {
+                    btn.classList.remove('text-slate-400');
+                    btn.classList.add('text-blue-600');
+                } else {
+                    btn.classList.remove('text-blue-600');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            // Specific tab initializations
+            if (tabId === 'flashcards' && currentFlashcardIndex === 0 && !document.getElementById('fc-front-word').innerText) {
+                loadFlashcard(0);
+            }
+        }
+
+        // --- LEARN TAB LOGIC ---
+        function renderDictionary(data) {
+            const list = document.getElementById('dictionary-list');
+            list.innerHTML = '';
+            
+            // Sort alphabetically by base verb
+            const sortedData = [...data].sort((a, b) => a.base.localeCompare(b.base));
+
+            if (sortedData.length === 0) {
+                list.innerHTML = '<p class="text-center text-slate-500 mt-6">No verbs found.</p>';
+                return;
+            }
+
+            sortedData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col gap-2";
+                
+                // Highlight the missing word in the sentence slightly for context
+                const displaySentence = item.sentence.replace('___', `<span class="font-bold text-blue-600">${item.form}</span>`);
+
+                card.innerHTML = `
+                    <h3 class="text-xl font-bold text-slate-800 capitalize">${item.base}</h3>
+                    <p class="text-sm font-medium text-slate-600 border-l-2 border-blue-400 pl-3 py-1 bg-slate-50 rounded-r-md">${item.meaning}</p>
+                    <p class="text-sm text-slate-500 italic mt-1">"${displaySentence}"</p>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function filterDictionary() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = verbsData.filter(v => 
+                v.base.toLowerCase().includes(query) || 
+                v.meaning.toLowerCase().includes(query)
+            );
+            renderDictionary(filtered);
+        }
+
+        // --- FLASHCARDS LOGIC ---
+        let currentFlashcardIndex = 0;
+        let isFlipped = false;
+        
+        // Shuffle an array using Fisher-Yates
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        let flashcardData = shuffleArray(verbsData); // Initial shuffle
+
+        function loadFlashcard(index) {
+            const item = flashcardData[index];
+            document.getElementById('fc-front-word').innerText = item.base;
+            document.getElementById('fc-back-meaning').innerText = item.meaning;
+            
+            // Reconstruct sentence with the blank for thought exercise on the back
+            document.getElementById('fc-back-example').innerHTML = `Example: "${item.sentence.replace('___', `<strong>${item.form}</strong>`)}"`;
+            
+            document.getElementById('flashcard-counter').innerText = `Card ${index + 1} / ${flashcardData.length}`;
+            
+            // Ensure card is face up
+            if (isFlipped) {
+                flipCard(true); // force front
+            }
+        }
+
+        function flipCard(forceFront = false) {
+            const inner = document.getElementById('flashcard-inner');
+            if (forceFront) {
+                inner.classList.remove('flipped');
+                isFlipped = false;
+            } else {
+                inner.classList.toggle('flipped');
+                isFlipped = !isFlipped;
+            }
+        }
+
+        function nextCard() {
+            if (isFlipped) flipCard(true);
+            setTimeout(() => {
+                currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcardData.length;
+                loadFlashcard(currentFlashcardIndex);
+            }, isFlipped ? 300 : 0); // Wait for flip animation if it was flipped
+        }
+
+        function prevCard() {
+            if (isFlipped) flipCard(true);
+            setTimeout(() => {
+                currentFlashcardIndex = (currentFlashcardIndex - 1 + flashcardData.length) % flashcardData.length;
+                loadFlashcard(currentFlashcardIndex);
+            }, isFlipped ? 300 : 0);
+        }
+
+        // --- QUIZ LOGIC ---
+        let quizData = [];
+        let currentQuizIndex = 0;
+        let score = 0;
+        let canClick = true;
+
+        function startQuiz() {
+            quizData = shuffleArray(verbsData);
+            currentQuizIndex = 0;
+            score = 0;
+            canClick = true;
+            
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-game').classList.remove('hidden');
+            
+            updateScoreDisplay();
+            loadQuizQuestion();
+        }
+
+        function getDistractors(correctForm) {
+            const allForms = verbsData.map(v => v.form);
+            const distractors = allForms.filter(f => f !== correctForm);
+            const shuffledDistractors = shuffleArray(distractors);
+            
+            const options = [correctForm, shuffledDistractors[0], shuffledDistractors[1], shuffledDistractors[2]];
+            return shuffleArray(options); // shuffle so correct answer isn't always first
+        }
+
+        function loadQuizQuestion() {
+            canClick = true;
+            const item = quizData[currentQuizIndex];
+            
+            document.getElementById('quiz-progress').innerText = `Question ${currentQuizIndex + 1} / ${quizData.length}`;
+            document.getElementById('quiz-sentence').innerHTML = item.sentence.replace('___', '<span class="inline-block w-24 border-b-2 border-slate-400 text-transparent">___</span>');
+            
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+            
+            const options = getDistractors(item.form);
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 font-medium text-slate-700 bg-white hover:bg-slate-50 transition-all duration-200 focus:outline-none";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(btn, opt, item.form, item.sentence);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(btnElement, selected, correct, fullSentence) {
+            if (!canClick) return;
+            canClick = false; // Prevent multiple clicks
+
+            const buttons = document.getElementById('quiz-options').querySelectorAll('button');
+            
+            if (selected === correct) {
+                // Correct
+                btnElement.classList.remove('border-slate-200', 'text-slate-700');
+                btnElement.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                score++;
+                updateScoreDisplay();
+            } else {
+                // Incorrect
+                btnElement.classList.remove('border-slate-200', 'text-slate-700');
+                btnElement.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-700');
+                
+                // Highlight correct answer
+                buttons.forEach(b => {
+                    if (b.innerText === correct) {
+                        b.classList.remove('border-slate-200', 'text-slate-700');
+                        b.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                    }
+                });
+            }
+
+            // Fill in the blank visually
+            document.getElementById('quiz-sentence').innerHTML = fullSentence.replace('___', `<span class="${selected === correct ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold underline'}">${selected}</span>`);
+
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuizIndex++;
+                if (currentQuizIndex < quizData.length) {
+                    loadQuizQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 1800);
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('quiz-score-display').innerText = `Score: ${score}`;
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-game').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            const icon = document.getElementById('result-icon');
+            if (score === 16) icon.innerText = '👑';
+            else if (score >= 12) icon.innerText = '🏆';
+            else if (score >= 8) icon.innerText = '👍';
+            else icon.innerText = '📚';
+        }
+
+        // Initialize App on load
+        window.onload = () => {
+            renderDictionary(verbsData);
+            loadFlashcard(0);
+        };
+
+    </script>
+</body>
+</html>
